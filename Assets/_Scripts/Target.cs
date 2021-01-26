@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Target : MonoBehaviour
@@ -14,10 +16,24 @@ public class Target : MonoBehaviour
         ySpawnPos = -4;
 
     private Rigidbody _rigidbody;
+
+    private GameManager _gameManager;
+
+    [SerializeField]
+    [Range(-100, 100)]
+    private int pointValue;
     
+    [SerializeField]
+    private ParticleSystem explosionParticle;
+
     // Start is called before the first frame update
     void Start()
     {
+        //_gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        
+        // There's only one game manager in the scene
+        _gameManager = GameObject.FindObjectOfType<GameManager>();
+        
         // Get the component RigidBody
         _rigidbody = GetComponent<Rigidbody>();
         
@@ -37,12 +53,37 @@ public class Target : MonoBehaviour
 
         // Generate it in a random X but a fixed Y
         transform.position = RandomSpawnPos();
+
+        //explosion = GetComponent<ParticleSystem>();
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    private void OnMouseDown()
+    {
+        Destroy(gameObject);
+
+        // Fixed: Instead of calling ps.Play(), Instantiate the assigned particle system
+        Instantiate(explosionParticle, transform.position, explosionParticle.transform.rotation);
+        
+        _gameManager.UpdateScore(pointValue);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("KillZone"))
+        {
+            Destroy(gameObject);
+
+            if (pointValue > 0)
+            {
+                _gameManager.UpdateScore(-pointValue);
+            }
+        }
     }
 
     /// <summary>
