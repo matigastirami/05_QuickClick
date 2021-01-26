@@ -32,7 +32,7 @@ public class Target : MonoBehaviour
         //_gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
         
         // There's only one game manager in the scene
-        _gameManager = GameObject.FindObjectOfType<GameManager>();
+        _gameManager = FindObjectOfType<GameManager>();
         
         // Get the component RigidBody
         _rigidbody = GetComponent<Rigidbody>();
@@ -65,21 +65,29 @@ public class Target : MonoBehaviour
 
     private void OnMouseDown()
     {
-        Destroy(gameObject);
+        if (_gameManager.gameState == GameManager.GameState.inGame)
+        {
+            Destroy(gameObject);
 
-        // Fixed: Instead of calling ps.Play(), Instantiate the assigned particle system
-        Instantiate(explosionParticle, transform.position, explosionParticle.transform.rotation);
+            // Fixed: Instead of calling ps.Play(), Instantiate the assigned particle system
+            Instantiate(explosionParticle, transform.position, explosionParticle.transform.rotation);
         
-        _gameManager.UpdateScore(pointValue);
+            _gameManager.UpdateScore(pointValue);
+        
+            if (gameObject.CompareTag("Bad"))
+            {
+                _gameManager.GameOver();
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("KillZone"))
+        if (other.CompareTag("KillZone") && _gameManager.gameState == GameManager.GameState.inGame)
         {
             Destroy(gameObject);
 
-            if (pointValue > 0)
+            if (gameObject.CompareTag("Good"))
             {
                 _gameManager.UpdateScore(-pointValue);
             }

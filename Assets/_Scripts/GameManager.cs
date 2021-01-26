@@ -2,10 +2,20 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using static TMPro.TextMeshProUGUI;
 
 public class GameManager : MonoBehaviour
 {
+    
+    public enum GameState
+    {
+        inGame,
+        gameOver,
+        loading,
+        paused
+    }
+
+    public GameState gameState;
+    
     public List<GameObject> targetPrefabs;
 
     [SerializeField] private float spawnRate = 1.0f;
@@ -20,18 +30,28 @@ public class GameManager : MonoBehaviour
         set => _score = Mathf.Max(value, 0);
         get => _score;
     }
-    
+
+    [SerializeField] private TextMeshProUGUI gameOverText;
+
     // Start is called before the first frame update
     void Start()
     {
+        gameState = GameState.inGame;
+        
         StartCoroutine(SpawnTarget());
 
         UpdateScore(0);
+        
+        gameOverText.gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Spawns targets indefinitely
+    /// </summary>
+    /// <returns>-</returns>
     IEnumerator SpawnTarget()
     {
-        while (true)
+        while (gameState == GameState.inGame)
         {
             yield return new WaitForSeconds(spawnRate);
 
@@ -51,5 +71,14 @@ public class GameManager : MonoBehaviour
     {
         Score += scoreToAdd;
         scoreText.text = "Score: " + Score;
+    }
+
+    /// <summary>
+    /// Shows the game over message
+    /// </summary>
+    public void GameOver()
+    {
+        gameState = GameState.gameOver;
+        gameOverText.gameObject.SetActive(true);
     }
 }
