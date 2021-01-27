@@ -1,0 +1,13 @@
+﻿# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/contentModel.xml
+/projectSettingsUpdater.xml
+/.idea.05_QuickClick.iml
+/modules.xml
+# Datasource local storage ignored files
+/../../../../../../../../:\Workspace\Proyectos Personales\Unity\05_QuickClick\.idea\.idea.05_QuickClick\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
