@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
     
     public List<GameObject> targetPrefabs;
 
-    [SerializeField] private float spawnRate = 1.0f;
+    [SerializeField] private float spawnRate = 1.5f;
 
     private int _score;
     
@@ -30,20 +30,27 @@ public class GameManager : MonoBehaviour
         set => _score = Mathf.Max(value, 0);
         get => _score;
     }
-    
+
     // UI
     [SerializeField] private TextMeshProUGUI scoreText;
 
     [SerializeField] private TextMeshProUGUI gameOverText;
 
     [SerializeField] private Button restartButton;
+
+    [SerializeField] private GameObject titleScreen;
     
     //[SerializeField] private Button exitButton;
 
-    // Start is called before the first frame update
-    void Start()
+    /// <summary>
+    /// Method that starts the game, changing the game status and starting the spawning coroutine
+    /// </summary>
+    /// <param name="difficulty">Integer number to indicate the game difficulty level</param>
+    public void StartGame(int difficulty)
     {
         gameState = GameState.inGame;
+
+        spawnRate /= difficulty;
         
         StartCoroutine(SpawnTarget());
 
@@ -51,8 +58,9 @@ public class GameManager : MonoBehaviour
         
         gameOverText.gameObject.SetActive(false);
         
-        // 1st way to add the action listener to the button, the other way is through the editor
-        //restartButton.onClick.AddListener(RestartGame);
+        titleScreen.gameObject.SetActive(false);
+        
+        scoreText.gameObject.SetActive(true);
     }
 
     /// <summary>
