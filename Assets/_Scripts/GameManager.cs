@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -20,8 +22,6 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private float spawnRate = 1.0f;
 
-    [SerializeField] private TextMeshProUGUI scoreText;
-
     private int _score;
     
     private int Score
@@ -30,8 +30,15 @@ public class GameManager : MonoBehaviour
         set => _score = Mathf.Max(value, 0);
         get => _score;
     }
+    
+    // UI
+    [SerializeField] private TextMeshProUGUI scoreText;
 
     [SerializeField] private TextMeshProUGUI gameOverText;
+
+    [SerializeField] private Button restartButton;
+    
+    //[SerializeField] private Button exitButton;
 
     // Start is called before the first frame update
     void Start()
@@ -43,6 +50,9 @@ public class GameManager : MonoBehaviour
         UpdateScore(0);
         
         gameOverText.gameObject.SetActive(false);
+        
+        // 1st way to add the action listener to the button, the other way is through the editor
+        //restartButton.onClick.AddListener(RestartGame);
     }
 
     /// <summary>
@@ -80,5 +90,11 @@ public class GameManager : MonoBehaviour
     {
         gameState = GameState.gameOver;
         gameOverText.gameObject.SetActive(true);
+        restartButton.gameObject.SetActive(true);
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
