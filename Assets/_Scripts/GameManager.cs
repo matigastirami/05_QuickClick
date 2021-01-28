@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
@@ -15,6 +17,8 @@ public class GameManager : MonoBehaviour
         loading,
         paused
     }
+
+    private const string MAX_SCORE = "MAX_SCORE";
 
     public GameState gameState;
     
@@ -30,6 +34,10 @@ public class GameManager : MonoBehaviour
         set => _score = Mathf.Max(value, 0);
         get => _score;
     }
+    
+    private int numberOfLives = 3;
+
+    public List<GameObject> lives;
 
     // UI
     [SerializeField] private TextMeshProUGUI scoreText;
@@ -42,6 +50,11 @@ public class GameManager : MonoBehaviour
     
     //[SerializeField] private Button exitButton;
 
+    private void Start()
+    {
+        ShowMaxScore();
+    }
+
     /// <summary>
     /// Method that starts the game, changing the game status and starting the spawning coroutine
     /// </summary>
@@ -51,6 +64,8 @@ public class GameManager : MonoBehaviour
         gameState = GameState.inGame;
 
         spawnRate /= difficulty;
+
+        numberOfLives -= difficulty - 1;
         
         StartCoroutine(SpawnTarget());
 
@@ -61,6 +76,11 @@ public class GameManager : MonoBehaviour
         titleScreen.gameObject.SetActive(false);
         
         scoreText.gameObject.SetActive(true);
+
+        for (int i = 0; i < numberOfLives; i++)
+        {
+            lives[i].SetActive(true);
+        }
     }
 
     /// <summary>
@@ -92,17 +112,57 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Shows the game over message
+    /// Shows the max player score
+    /// </summary>
+    public void ShowMaxScore()
+    {
+        int maxScore = PlayerPrefs.GetInt(MAX_SCORE, 0);
+        scoreText.text = "Max Score: " + maxScore;
+    }
+
+    /// <summary>
+    /// Sets the player max score in history
+    /// </summary>
+    private void SetMaxScore()
+    {
+        int maxScore = PlayerPrefs.GetInt(MAX_SCORE, 0);
+
+        if (Score > maxScore)
+        {
+            PlayerPrefs.SetInt(MAX_SCORE, _score);
+            
+            // TODO: put an amazing particle system when the player reach a new record
+        }
+    }
+
+    /// <summary>
+    /// Checks the game over condition, decreases lives and shows the game over message
     /// </summary>
     public void GameOver()
     {
-        gameState = GameState.gameOver;
-        gameOverText.gameObject.SetActive(true);
-        restartButton.gameObject.SetActive(true);
+        numberOfLives--;
+
+        Image heartImage = lives[numberOfLives].GetComponent<Image>();
+
+        // Use var only for temp variables
+        var tempColor = heartImage.color;
+
+        tempColor.a = 0.3f;
+
+        heartImage.color = tempColor;
+
+        if (numberOfLives <= 0)
+        {
+            SetMaxScore();
+            gameState = GameState.gameOver;
+            gameOverText.gameObject.SetActive(true);
+            restartButton.gameObject.SetActive(true);
+        }
     }
 
     public void RestartGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        ShowMaxScore();
     }
 }
